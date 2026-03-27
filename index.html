@@ -54,15 +54,12 @@
             <option value="35">Comedy</option>
             <option value="27">Horror</option>
             <option value="10751">Family</option>
+            <option value="16">Animation</option>
+            <option value="18">Drama</option>
         </select>
 
         <select id="year-select">
-            <option value="2023">2023</option>
-            <option value="2018">2018</option>
-            <option value="2010">2010</option>
-            <option value="2001">2001</option>
-            <option value="1999">1999</option>
-        </select>
+            </select>
 
         <button onclick="fetchRandomMovie()">Find Next Movie</button>
     </div>
@@ -72,6 +69,19 @@
     <script>
         // REPLACE THIS WITH YOUR ACTUAL TMDB API KEY
         const API_KEY = 'ab209bae2d49ee12d5a1f8601c11ef6a'; 
+
+        // Auto-generate years from current year down to 1978
+        window.onload = function() {
+            const yearSelect = document.getElementById("year-select");
+            const currentYear = new Date().getFullYear();
+            
+            for (let y = currentYear; y >= 1978; y--) {
+                let option = document.createElement("option");
+                option.value = y;
+                option.text = y;
+                yearSelect.appendChild(option);
+            }
+        };
 
         async function fetchRandomMovie() {
             const genreId = document.getElementById("genre-select").value;
@@ -87,11 +97,12 @@
             resultDiv.innerHTML = '<span class="loading">Searching the database...</span>';
 
             try {
+                // Build the search URL dynamically
                 const searchUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&primary_release_year=${year}&language=en-US&page=1`;
                 const searchResponse = await fetch(searchUrl);
                 const searchData = await searchResponse.json();
 
-                if (searchData.results.length === 0) {
+                if (!searchData.results || searchData.results.length === 0) {
                     resultDiv.innerHTML = "No movies found for that combination.";
                     return;
                 }
@@ -106,14 +117,14 @@
                 if (movie.runtime) {
                     const hours = Math.floor(movie.runtime / 60);
                     const mins = movie.runtime % 60;
-                    runtimeStr = `${hours} hour${hours > 1 ? 's' : ''} and ${mins} mins`;
+                    runtimeStr = `${hours} hour${hours !== 1 ? 's' : ''} and ${mins} mins`;
                 }
 
                 let rating = "Not Rated";
                 if (movie.release_dates && movie.release_dates.results) {
                     const usRelease = movie.release_dates.results.find(r => r.iso_3166_1 === 'US');
                     if (usRelease && usRelease.release_dates[0].certification) {
-                        rating = usRelease.release_dates[0].certification;
+                        rating = usRelease.release_dates[0].certification || "Not Rated";
                     }
                 }
 
@@ -135,6 +146,7 @@
                     }
                 }
 
+                // Outputs precisely in your requested layout
                 resultDiv.innerHTML = `Movie: ${movie.title}\nYear: ${movie.release_date.split('-')[0]}\nRating: ${rating}\nRuntime: ${runtimeStr}\nGenres: ${genresStr}\nSource: ${source}\n\nSummary: ${movie.overview}\n\nTrailer: <a href="${trailerLink}" target="_blank">${trailerLink}</a>`;
 
             } catch (error) {
