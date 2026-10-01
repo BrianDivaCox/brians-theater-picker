@@ -6,5 +6,5 @@
 - [x] Ensure strict client-side validation so non-streaming/rental-only movies are filtered out when "Only Streaming" is active <!-- id: 3 -->
 - [x] Bump version to `1.0.1` across `package.json`, `version.json`, and `index.html`, and update `CHANGELOG.md` with App Store style bullets (strict <= 10 words) <!-- id: 4 -->
 - [x] Update automated test suite `test/verify_picker.js` and verify with headless Chrome (`puppeteer-core`) confirming toggle behavior, zero console errors, and responsive layouts <!-- id: 5 -->
-- [ ] Commit and push to GitHub remote `origin/main` with version title and Mini Summary <!-- id: 6 -->
-- [ ] Clean house, close background tasks, and finalize task closure <!-- id: 7 -->
+- [x] Commit and push to GitHub remote `origin/main` with version title and Mini Summary <!-- id: 6 -->
+- [x] Clean house, close background tasks, and finalize task closure <!-- id: 7 -->
