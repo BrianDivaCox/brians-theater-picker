@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Backups
+backups/
+*.tar.gz
+*.zip
+
+# Logs
+logs/
+*.log

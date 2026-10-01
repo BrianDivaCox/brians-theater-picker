@@ -1,0 +1,11 @@
+{
+  "name": "brians-theater-picker",
+  "version": "1.0.0",
+  "description": "Brian's Theater Live Movie Picker & Bulk Schedule Generator",
+  "main": "index.html",
+  "scripts": {
+    "test": "node test/verify_picker.js"
+  },
+  "author": "Brian Diva Cox",
+  "license": "MIT"
+}

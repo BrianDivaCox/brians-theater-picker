@@ -4,155 +4,1211 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brian's Theater - Live Movie Picker</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #0b0d10;
+            --surface-color: rgba(20, 24, 32, 0.9);
+            --surface-card: rgba(28, 34, 46, 0.85);
+            --surface-border: rgba(255, 255, 255, 0.1);
+            --primary-red: #e50914;
+            --primary-red-hover: #f40612;
+            --primary-red-glow: rgba(229, 9, 20, 0.35);
+            --gold-accent: #f5c518;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --tag-bg: rgba(255, 255, 255, 0.08);
+            --card-radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(229, 9, 20, 0.18) 0%, transparent 60%),
+                radial-gradient(circle at 85% 30%, rgba(245, 197, 24, 0.05) 0%, transparent 50%),
+                linear-gradient(180deg, #0d1016 0%, var(--bg-color) 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px;
+            padding: 28px 16px 64px 16px;
+            overflow-x: hidden;
         }
-        h1 { color: #e50914; margin-bottom: 30px; }
-        .controls {
-            background-color: #1e1e1e;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            margin-bottom: 30px;
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
         }
-        select, button {
-            padding: 10px 15px; margin: 0 10px; font-size: 16px;
-            border-radius: 5px; border: 1px solid #333;
-            background-color: #2b2b2b; color: white;
+
+        .header-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.3rem, 5.5vw, 3.6rem);
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
         }
-        button {
-            background-color: #e50914; border: none;
-            cursor: pointer; font-weight: bold; transition: 0.2s;
+
+        .header-logo span {
+            color: var(--primary-red);
         }
-        button:hover { background-color: #f40612; }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1080px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .controls-card {
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: var(--card-radius);
+            padding: 24px 28px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-color: rgba(30, 36, 48, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 0.92rem;
+            font-weight: 500;
+            padding: 11px 36px 11px 13px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 15px;
+            width: 100%;
+        }
+
+        select:focus, select:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px var(--primary-red-glow);
+        }
+
+        /* Platform / Source Filter Section (Exact look & feel of user form) */
+        .platform-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.09);
+            padding-top: 20px;
+            margin-bottom: 24px;
+        }
+
+        .platform-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .platform-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .platform-optional {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .platform-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .platform-btn {
+            background-color: #171d27;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #d1d5db;
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+
+        .platform-btn:hover {
+            background-color: #232b38;
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .platform-btn.active {
+            background-color: var(--primary-red);
+            color: #ffffff;
+            border-color: var(--primary-red);
+            box-shadow: 0 4px 14px var(--primary-red-glow);
+        }
+
+        .platform-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        .submit-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 14px;
+        }
+
+        .btn-discover {
+            background: linear-gradient(135deg, var(--primary-red) 0%, #b80710 100%);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 13px 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 18px var(--primary-red-glow);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        @media (min-width: 640px) {
+            .btn-discover {
+                width: auto;
+                min-width: 260px;
+            }
+        }
+
+        .btn-discover:hover {
+            background: linear-gradient(135deg, var(--primary-red-hover) 0%, var(--primary-red) 100%);
+            box-shadow: 0 6px 24px rgba(229, 9, 20, 0.55);
+            transform: translateY(-1px);
+        }
+
+        .btn-discover:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Results Container */
         #result-container {
-            width: 100%; max-width: 600px; background-color: #1e1e1e;
-            padding: 30px; border-radius: 8px; display: none;
-            white-space: pre-wrap;
-            font-size: 16px; line-height: 1.6;
+            width: 100%;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
         }
-        .loading { color: #aaaaaa; font-style: italic; }
-        a { color: #4da6ff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Bulk Action Bar */
+        .bulk-header-bar {
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--card-radius);
+            padding: 16px 22px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        .bulk-count-badge {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bulk-actions-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.07);
+            color: #f3f4f6;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+        }
+
+        .btn-action-primary {
+            background: rgba(229, 9, 20, 0.22);
+            border-color: rgba(229, 9, 20, 0.5);
+            color: #ff9196;
+        }
+
+        .btn-action-primary:hover {
+            background: rgba(229, 9, 20, 0.38);
+            border-color: var(--primary-red);
+            color: #ffffff;
+        }
+
+        /* Movie Card Grid */
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        /* Single Spotlight Card Layout */
+        .movies-grid.single-spotlight {
+            grid-template-columns: 1fr;
+        }
+
+        .movie-card {
+            background: var(--surface-card);
+            border: 1px solid var(--surface-border);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .movie-card:hover {
+            border-color: rgba(255, 255, 255, 0.24);
+        }
+
+        .movie-card.selected {
+            border-color: rgba(229, 9, 20, 0.5);
+        }
+
+        /* Spotlight Layout for Single View */
+        .movies-grid.single-spotlight .movie-card {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+        }
+
+        @media (max-width: 768px) {
+            .movies-grid.single-spotlight .movie-card {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-select-checkbox {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 10;
+            background: rgba(15, 18, 24, 0.85);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #e5e7eb;
+        }
+
+        .card-select-checkbox input {
+            cursor: pointer;
+            accent-color: var(--primary-red);
+            width: 16px;
+            height: 16px;
+        }
+
+        .poster-container {
+            background: #14171f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            min-height: 240px;
+        }
+
+        .movies-grid.single-spotlight .poster-container {
+            min-height: 400px;
+        }
+
+        .poster-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .movie-card:hover .poster-container img {
+            transform: scale(1.02);
+        }
+
+        .poster-fallback {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--text-muted);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .poster-fallback svg {
+            width: 48px;
+            height: 48px;
+            stroke: var(--text-muted);
+        }
+
+        .movie-details {
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .movie-title-area h3 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            line-height: 1.3;
+            color: #ffffff;
+            margin-bottom: 4px;
+            padding-right: 40px;
+        }
+
+        .movies-grid.single-spotlight .movie-title-area h3 {
+            font-size: 1.85rem;
+        }
+
+        .tagline {
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .badge-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+            background: var(--tag-bg);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e5e7eb;
+        }
+
+        .badge-cert {
+            border-color: rgba(229, 9, 20, 0.5);
+            background: rgba(229, 9, 20, 0.15);
+            color: #ff6b72;
+        }
+
+        .badge-rating {
+            background: rgba(245, 197, 24, 0.15);
+            border-color: rgba(245, 197, 24, 0.4);
+            color: var(--gold-accent);
+        }
+
+        .badge-source {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.4);
+            color: #60a5fa;
+        }
+
+        .genres-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+
+        .genre-pill {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .overview {
+            font-size: 0.88rem;
+            line-height: 1.55;
+            color: #d1d5db;
+            max-height: 110px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .movies-grid.single-spotlight .overview {
+            max-height: 160px;
+            font-size: 0.95rem;
+        }
+
+        .overview::-webkit-scrollbar {
+            width: 4px;
+        }
+        .overview::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .card-actions-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .card-actions-bar .btn-action {
+            font-size: 0.78rem;
+            padding: 7px 11px;
+        }
+
+        /* Loading Spinner */
+        .loading-state {
+            padding: 60px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(229, 9, 20, 0.2);
+            border-top: 3px solid var(--primary-red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast Alert */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1e2530;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 12px 22px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding-top: 40px;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Brian's Theater: Live Picker</h1>
+    <header>
+        <div class="header-logo">
+            🎬 BRIAN'S THEATER <span>PICKER</span>
+        </div>
+        <p class="subtitle">Live TMDB Catalog Discovery & Bulk Schedule Generator</p>
+    </header>
 
-    <div class="controls">
-        <select id="genre-select">
-            <option value="28">Action</option>
-            <option value="878">Sci-Fi</option>
-            <option value="35">Comedy</option>
-            <option value="27">Horror</option>
-            <option value="10751">Family</option>
-            <option value="16">Animation</option>
-            <option value="18">Drama</option>
-        </select>
+    <main class="main-container">
+        <!-- Controls Card -->
+        <section class="controls-card">
+            <!-- Row 1: Dropdown Filters -->
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="genre-select">🎭 Genre</label>
+                    <select id="genre-select">
+                        <option value="">Any Genre (Wildcard)</option>
+                        <option value="28">Action</option>
+                        <option value="12">Adventure</option>
+                        <option value="16">Animation</option>
+                        <option value="35">Comedy</option>
+                        <option value="80">Crime</option>
+                        <option value="99">Documentary</option>
+                        <option value="18">Drama</option>
+                        <option value="10751">Family</option>
+                        <option value="14">Fantasy</option>
+                        <option value="36">History</option>
+                        <option value="27">Horror</option>
+                        <option value="10402">Music</option>
+                        <option value="9648">Mystery</option>
+                        <option value="10749">Romance</option>
+                        <option value="878">Sci-Fi</option>
+                        <option value="10770">TV Movie</option>
+                        <option value="53">Thriller</option>
+                        <option value="10752">War</option>
+                        <option value="37">Western</option>
+                    </select>
+                </div>
 
-        <select id="year-select">
-            </select>
+                <div class="control-group">
+                    <label for="year-select">📅 Release Year</label>
+                    <select id="year-select">
+                        <option value="">Any Year (Wildcard)</option>
+                    </select>
+                </div>
 
-        <button onclick="fetchRandomMovie()">Find Next Movie</button>
+                <div class="control-group">
+                    <label for="min-rating">⭐ Min TMDB Score</label>
+                    <select id="min-rating">
+                        <option value="0">Any Rating</option>
+                        <option value="6">6.0+ (Good)</option>
+                        <option value="7">7.0+ (Great)</option>
+                        <option value="8">8.0+ (Acclaimed)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="count-select">📦 Suggestions Count</label>
+                    <select id="count-select" onchange="updateButtonText()">
+                        <option value="1">1 Movie (Spotlight)</option>
+                        <option value="3">3 Suggestions (Bulk)</option>
+                        <option value="5" selected>5 Suggestions (Bulk)</option>
+                        <option value="10">10 Suggestions (Bulk)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Row 2: Platform / Source Filters (Exact UI from Brian's Theater Request Form) -->
+            <div class="platform-section">
+                <div class="platform-header">
+                    <div class="platform-title">
+                        <span>📺</span> WHERE CAN BRIAN FIND IT? (PLATFORM / SOURCE)
+                    </div>
+                    <span class="platform-optional">Optional</span>
+                </div>
+
+                <div class="platform-pills" id="platform-pills-container">
+                    <button type="button" class="platform-btn active" data-platform="" data-label="Any Platform">Any Platform</button>
+                    <button type="button" class="platform-btn" data-platform="hbo" data-providers="1899|1825" data-label="HBO Max">HBO Max</button>
+                    <button type="button" class="platform-btn" data-platform="disney" data-providers="337|15" data-label="Disney+/ Hulu">Disney+/ Hulu</button>
+                    <button type="button" class="platform-btn" data-platform="netflix" data-providers="8|1796" data-label="Netflix">Netflix</button>
+                    <button type="button" class="platform-btn" data-platform="tubi" data-providers="73" data-label="Tubi">Tubi</button>
+                    <button type="button" class="platform-btn" data-platform="peacock" data-providers="386|387|2553" data-label="Peacock">Peacock</button>
+                    <button type="button" class="platform-btn" data-platform="paramount" data-providers="531|2303|2616|582" data-label="Paramount+">Paramount+</button>
+                    <button type="button" class="platform-btn" data-platform="starz" data-providers="43|1794|1855|634" data-label="Starz">Starz</button>
+                    <button type="button" class="platform-btn" data-platform="theaters" data-theatrical="true" data-label="Theaters">Theaters</button>
+                    <button type="button" class="platform-btn" data-platform="prime" data-providers="9|119|2100" data-label="Prime">Prime</button>
+                </div>
+                <p class="platform-subtitle">Click a platform to help Brian locate where to stream it.</p>
+            </div>
+
+            <!-- Submit Discover Button -->
+            <div class="submit-bar">
+                <button id="btn-discover" class="btn-discover" onclick="discoverMovies()">
+                    <span>🎲</span> <span id="btn-discover-label">Get 5 Bulk Suggestions</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Results Container -->
+        <section id="result-container">
+            <!-- Dynamically injected -->
+        </section>
+    </main>
+
+    <div id="toast">
+        <span id="toast-icon">✓</span>
+        <span id="toast-msg">Copied to clipboard</span>
     </div>
 
-    <div id="result-container"></div>
+    <footer>
+        Brian's Theater Live Picker &bull; Powered by TMDB &bull; v1.0.0
+    </footer>
 
     <script>
-        // REPLACE THIS WITH YOUR ACTUAL TMDB API KEY
-        const API_KEY = 'ab209bae2d49ee12d5a1f8601c11ef6a'; 
-
-        // Auto-generate years from current year down to 1978
-        window.onload = function() {
-            const yearSelect = document.getElementById("year-select");
-            const currentYear = new Date().getFullYear();
-            
-            for (let y = currentYear; y >= 1978; y--) {
-                let option = document.createElement("option");
-                option.value = y;
-                option.text = y;
-                yearSelect.appendChild(option);
-            }
+        const API_KEY = 'ab209bae2d49ee12d5a1f8601c11ef6a';
+        let currentDiscoveredMovies = [];
+        let selectedPlatformFilter = {
+            id: '',
+            providers: '',
+            theatrical: false,
+            label: 'Any Platform'
         };
 
-        async function fetchRandomMovie() {
+        // Populate years dynamically from current year down to 1960
+        (function initYears() {
+            const yearSelect = document.getElementById("year-select");
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear; y >= 1960; y--) {
+                const opt = document.createElement("option");
+                opt.value = y;
+                opt.textContent = y;
+                yearSelect.appendChild(opt);
+            }
+        })();
+
+        // Setup platform pill button click handlers
+        (function initPlatformPills() {
+            const pillButtons = document.querySelectorAll(".platform-btn");
+            pillButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    pillButtons.forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    selectedPlatformFilter = {
+                        id: btn.dataset.platform,
+                        providers: btn.dataset.providers || '',
+                        theatrical: btn.dataset.theatrical === 'true',
+                        label: btn.dataset.label
+                    };
+                });
+            });
+        })();
+
+        function updateButtonText() {
+            const count = parseInt(document.getElementById("count-select").value, 10);
+            const label = document.getElementById("btn-discover-label");
+            if (count === 1) {
+                label.textContent = "Find 1 Movie (Spotlight)";
+            } else {
+                label.textContent = `Get ${count} Bulk Suggestions`;
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            const msgSpan = document.getElementById("toast-msg");
+            msgSpan.textContent = message;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 2500);
+        }
+
+        async function discoverMovies() {
             const genreId = document.getElementById("genre-select").value;
             const year = document.getElementById("year-select").value;
-            const resultDiv = document.getElementById("result-container");
-            
-            if (API_KEY === 'YOUR_API_KEY_HERE') {
+            const minRating = document.getElementById("min-rating").value;
+            const targetCount = parseInt(document.getElementById("count-select").value, 10);
+            const resultContainer = document.getElementById("result-container");
+            const btnDiscover = document.getElementById("btn-discover");
+
+            if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
                 alert("Please add your TMDB API key to the code first!");
                 return;
             }
 
-            resultDiv.style.display = "block";
-            resultDiv.innerHTML = '<span class="loading">Searching the database...</span>';
+            btnDiscover.disabled = true;
+            resultContainer.style.display = "block";
+            resultContainer.innerHTML = `
+                <div class="controls-card loading-state">
+                    <div class="spinner"></div>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Rolling the reels... Discovering ${targetCount} movie ${targetCount === 1 ? 'suggestion' : 'bulk suggestions'}...</p>
+                </div>
+            `;
 
             try {
-                // Build the search URL dynamically
-                const searchUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&primary_release_year=${year}&language=en-US&page=1`;
-                const searchResponse = await fetch(searchUrl);
-                const searchData = await searchResponse.json();
+                // Build dynamic query base
+                let discoverUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&language=en-US&include_adult=false&vote_count.gte=10`;
 
-                if (!searchData.results || searchData.results.length === 0) {
-                    resultDiv.innerHTML = "No movies found for that combination.";
+                if (genreId) discoverUrl += `&with_genres=${genreId}`;
+                if (year) discoverUrl += `&primary_release_year=${year}`;
+                if (minRating > 0) discoverUrl += `&vote_average.gte=${minRating}`;
+
+                // Handle platform filtering
+                if (selectedPlatformFilter.theatrical) {
+                    discoverUrl += `&with_release_type=3|2`;
+                } else if (selectedPlatformFilter.providers) {
+                    discoverUrl += `&watch_region=US&with_watch_providers=${selectedPlatformFilter.providers}&with_watch_monetization_types=flatrate|free|ads`;
+                }
+
+                // Step 1: Probe initial discovery for total pages
+                const probeRes = await fetch(`${discoverUrl}&page=1`);
+                if (!probeRes.ok) throw new Error(`TMDB HTTP error ${probeRes.status}`);
+                const probeData = await probeRes.json();
+
+                if (!probeData.results || probeData.results.length === 0) {
+                    resultContainer.innerHTML = `
+                        <div class="controls-card" style="text-align: center; padding: 40px;">
+                            <h3 style="color: var(--primary-red); margin-bottom: 8px;">No Movies Found</h3>
+                            <p style="color: var(--text-muted);">No movies matched this combination of genre, platform, and year. Try broadening your filter selection.</p>
+                        </div>
+                    `;
+                    btnDiscover.disabled = false;
                     return;
                 }
 
-                const randomMovie = searchData.results[Math.floor(Math.random() * searchData.results.length)];
+                // Step 2: Sample across available pages (up to 20 pages max for freshness & quality)
+                const totalPages = Math.min(probeData.total_pages || 1, 20);
+                let candidatesPool = [...probeData.results];
 
-                const detailsUrl = `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${API_KEY}&append_to_response=release_dates,videos,watch/providers`;
-                const detailsResponse = await fetch(detailsUrl);
-                const movie = await detailsResponse.json();
-                
-                let runtimeStr = "Unknown";
-                if (movie.runtime) {
-                    const hours = Math.floor(movie.runtime / 60);
-                    const mins = movie.runtime % 60;
-                    runtimeStr = `${hours} hour${hours !== 1 ? 's' : ''} and ${mins} mins`;
-                }
-
-                let rating = "Not Rated";
-                if (movie.release_dates && movie.release_dates.results) {
-                    const usRelease = movie.release_dates.results.find(r => r.iso_3166_1 === 'US');
-                    if (usRelease && usRelease.release_dates[0].certification) {
-                        rating = usRelease.release_dates[0].certification || "Not Rated";
+                // If multiple pages available, fetch a random additional page to enrich the pool
+                if (totalPages > 1) {
+                    const randomPage = Math.floor(Math.random() * totalPages) + 1;
+                    if (randomPage !== 1) {
+                        try {
+                            const secondPageRes = await fetch(`${discoverUrl}&page=${randomPage}`);
+                            if (secondPageRes.ok) {
+                                const secondData = await secondPageRes.json();
+                                if (secondData.results && secondData.results.length > 0) {
+                                    candidatesPool = candidatesPool.concat(secondData.results);
+                                }
+                            }
+                        } catch (err) {
+                            console.warn("Additional page query failed, using first page pool:", err);
+                        }
                     }
                 }
 
-                const genresStr = movie.genres.map(g => g.name).join(", ");
+                // Deduplicate pool by ID
+                const uniqueCandidates = Array.from(new Map(candidatesPool.map(m => [m.id, m])).values());
+                // Shuffle pool
+                const shuffled = uniqueCandidates.sort(() => 0.5 - Math.random());
+                const selectedRaw = shuffled.slice(0, targetCount);
 
-                let source = "VOD / Rent";
-                if (movie['watch/providers'] && movie['watch/providers'].results && movie['watch/providers'].results.US) {
-                    const usProviders = movie['watch/providers'].results.US;
-                    if (usProviders.flatrate) {
-                        source = usProviders.flatrate[0].provider_name;
+                // Step 3: Concurrently fetch full details for each selected movie
+                const detailedMovies = await Promise.all(selectedRaw.map(async (rawMovie) => {
+                    try {
+                        const detailUrl = `https://api.themoviedb.org/3/movie/${rawMovie.id}?api_key=${API_KEY}&append_to_response=release_dates,videos,watch/providers`;
+                        const res = await fetch(detailUrl);
+                        if (!res.ok) return formatMovieFallback(rawMovie);
+                        const detail = await res.json();
+                        return parseMovieDetails(detail);
+                    } catch (err) {
+                        console.error(`Error loading movie ${rawMovie.id}:`, err);
+                        return formatMovieFallback(rawMovie);
                     }
-                }
+                }));
 
-                let trailerLink = "No trailer available";
-                if (movie.videos && movie.videos.results) {
-                    const trailer = movie.videos.results.find(v => v.type === "Trailer" && v.site === "YouTube");
-                    if (trailer) {
-                        trailerLink = `https://www.youtube.com/watch?v=${trailer.key}`;
-                    }
-                }
+                currentDiscoveredMovies = detailedMovies;
+                renderDiscoveredMovies(detailedMovies, targetCount);
 
-                // Outputs precisely in your requested layout
-                resultDiv.innerHTML = `Movie: ${movie.title}\nYear: ${movie.release_date.split('-')[0]}\nRating: ${rating}\nRuntime: ${runtimeStr}\nGenres: ${genresStr}\nSource: ${source}\n\nSummary: ${movie.overview}\n\nTrailer: <a href="${trailerLink}" target="_blank">${trailerLink}</a>`;
-
-            } catch (error) {
-                resultDiv.innerHTML = "An error occurred while fetching data. Check your API key or internet connection.";
-                console.error(error);
+            } catch (err) {
+                console.error("Movie discovery error:", err);
+                resultContainer.innerHTML = `
+                    <div class="controls-card" style="text-align: center; padding: 36px;">
+                        <h3 style="color: var(--primary-red); margin-bottom: 8px;">Catalog Connection Error</h3>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Unable to connect to the TMDB movie catalog. Please check your network connection.</p>
+                    </div>
+                `;
+            } finally {
+                btnDiscover.disabled = false;
             }
+        }
+
+        function parseMovieDetails(movie) {
+            // Runtime calculation
+            let runtimeStr = "Unknown";
+            if (movie.runtime && movie.runtime > 0) {
+                const hours = Math.floor(movie.runtime / 60);
+                const mins = movie.runtime % 60;
+                runtimeStr = `${hours} hour${hours !== 1 ? 's' : ''} and ${mins} mins`;
+            }
+
+            // US Certification Rating
+            let rating = "Not Rated";
+            if (movie.release_dates && movie.release_dates.results) {
+                const usRelease = movie.release_dates.results.find(r => r.iso_3166_1 === 'US');
+                if (usRelease && usRelease.release_dates) {
+                    const certEntry = usRelease.release_dates.find(d => d.certification && d.certification.trim() !== "");
+                    if (certEntry && certEntry.certification) {
+                        rating = certEntry.certification;
+                    }
+                }
+            }
+
+            const releaseYear = movie.release_date ? movie.release_date.split('-')[0] : 'Unknown';
+            const genresStr = movie.genres && movie.genres.length > 0 
+                ? movie.genres.map(g => g.name).join(", ") 
+                : "Unknown";
+
+            // Streaming source
+            let source = "VOD / Rent";
+            if (selectedPlatformFilter.theatrical) {
+                source = "In Theaters";
+            } else if (movie['watch/providers'] && movie['watch/providers'].results && movie['watch/providers'].results.US) {
+                const usProviders = movie['watch/providers'].results.US;
+                if (usProviders.flatrate && usProviders.flatrate.length > 0) {
+                    source = usProviders.flatrate[0].provider_name;
+                } else if (usProviders.free && usProviders.free.length > 0) {
+                    source = usProviders.free[0].provider_name;
+                } else if (usProviders.ads && usProviders.ads.length > 0) {
+                    source = usProviders.ads[0].provider_name;
+                }
+            }
+
+            // YouTube Trailer
+            let trailerLink = "No trailer available";
+            if (movie.videos && movie.videos.results) {
+                const officialTrailer = movie.videos.results.find(v => v.type === "Trailer" && v.site === "YouTube" && v.official)
+                    || movie.videos.results.find(v => v.type === "Trailer" && v.site === "YouTube")
+                    || movie.videos.results.find(v => v.site === "YouTube");
+                if (officialTrailer) {
+                    trailerLink = `https://www.youtube.com/watch?v=${officialTrailer.key}`;
+                }
+            }
+
+            const voteScore = movie.vote_average ? movie.vote_average.toFixed(1) : null;
+            const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null;
+            const summary = movie.overview || "No overview summary provided.";
+
+            // Standard Brian's Theater Text Schema
+            const theaterText = `Movie: ${movie.title}\nYear: ${releaseYear}\nRating: ${rating}\nRuntime: ${runtimeStr}\nGenres: ${genresStr}\nSource: ${source}\n\nSummary: ${summary}\n\nTrailer: ${trailerLink}`;
+
+            // Discord Markdown Format
+            const discordText = `🎬 **${movie.title}** (${releaseYear})\n⭐ **Rating:** ${rating} | ⏱️ **Runtime:** ${runtimeStr}\n🎭 **Genres:** ${genresStr}\n📺 **Source:** ${source}\n\n> ${summary}\n\n🔗 **Trailer:** ${trailerLink}`;
+
+            return {
+                id: movie.id,
+                title: movie.title,
+                year: releaseYear,
+                rating: rating,
+                runtime: runtimeStr,
+                genres: genresStr,
+                genresList: movie.genres || [],
+                source: source,
+                summary: summary,
+                trailer: trailerLink,
+                voteAverage: voteScore,
+                tagline: movie.tagline || "",
+                posterUrl: posterUrl,
+                theaterText: theaterText,
+                discordText: discordText,
+                selected: true
+            };
+        }
+
+        function formatMovieFallback(rawMovie) {
+            const releaseYear = rawMovie.release_date ? rawMovie.release_date.split('-')[0] : 'Unknown';
+            const posterUrl = rawMovie.poster_path ? `https://image.tmdb.org/t/p/w500${rawMovie.poster_path}` : null;
+            const theaterText = `Movie: ${rawMovie.title}\nYear: ${releaseYear}\nRating: Not Rated\nRuntime: Unknown\nGenres: Unknown\nSource: VOD / Rent\n\nSummary: ${rawMovie.overview || "No overview available."}\n\nTrailer: No trailer available`;
+            const discordText = `🎬 **${rawMovie.title}** (${releaseYear})\n⭐ **Rating:** Not Rated | ⏱️ **Runtime:** Unknown\n🎭 **Genres:** Unknown\n📺 **Source:** VOD / Rent\n\n> ${rawMovie.overview || "No overview available."}\n\n🔗 **Trailer:** No trailer available`;
+
+            return {
+                id: rawMovie.id,
+                title: rawMovie.title,
+                year: releaseYear,
+                rating: "Not Rated",
+                runtime: "Unknown",
+                genres: "Unknown",
+                genresList: [],
+                source: "VOD / Rent",
+                summary: rawMovie.overview || "No overview available.",
+                trailer: "No trailer available",
+                voteAverage: rawMovie.vote_average ? rawMovie.vote_average.toFixed(1) : null,
+                tagline: "",
+                posterUrl: posterUrl,
+                theaterText: theaterText,
+                discordText: discordText,
+                selected: true
+            };
+        }
+
+        function renderDiscoveredMovies(movies, targetCount) {
+            const container = document.getElementById("result-container");
+            const isSingle = targetCount === 1;
+
+            let html = '';
+
+            // Bulk header bar (for bulk mode)
+            if (!isSingle) {
+                html += `
+                    <div class="bulk-header-bar">
+                        <div class="bulk-count-badge">
+                            <span>📦</span>
+                            <span id="bulk-selection-count">${movies.length} Movies Found • ${movies.length} Selected</span>
+                        </div>
+                        <div class="bulk-actions-group">
+                            <button class="btn-action btn-action-primary" onclick="copyAllBulkTheater()">
+                                📋 Copy Selected (Theater Format)
+                            </button>
+                            <button class="btn-action" onclick="copyAllBulkDiscord()">
+                                💬 Copy Selected (Discord)
+                            </button>
+                            <button class="btn-action" onclick="toggleSelectAll()">
+                                <span id="btn-toggle-all-text">Deselect All</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Cards container
+            html += `<div class="movies-grid ${isSingle ? 'single-spotlight' : ''}">`;
+
+            movies.forEach((movie, index) => {
+                html += `
+                    <div class="movie-card selected" id="card-${movie.id}">
+                        ${!isSingle ? `
+                            <label class="card-select-checkbox">
+                                <input type="checkbox" id="check-${movie.id}" checked onchange="toggleMovieSelection(${movie.id})">
+                                Include
+                            </label>
+                        ` : ''}
+
+                        <div class="poster-container">
+                            ${movie.posterUrl ? `<img src="${movie.posterUrl}" alt="${movie.title} Poster" loading="lazy">` : `
+                                <div class="poster-fallback">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+                                    <span>No Poster</span>
+                                </div>
+                            `}
+                        </div>
+
+                        <div class="movie-details">
+                            <div class="movie-title-area">
+                                <h3>${movie.title}</h3>
+                                ${movie.tagline ? `<p class="tagline">"${movie.tagline}"</p>` : ''}
+                                
+                                <div class="badge-bar">
+                                    <span class="badge">${movie.year}</span>
+                                    <span class="badge badge-cert">${movie.rating}</span>
+                                    ${movie.voteAverage ? `<span class="badge badge-rating">⭐ ${movie.voteAverage}</span>` : ''}
+                                    <span class="badge">${movie.runtime}</span>
+                                    <span class="badge badge-source">📺 ${movie.source}</span>
+                                </div>
+
+                                <div class="genres-bar">
+                                    ${movie.genresList && movie.genresList.length > 0 
+                                        ? movie.genresList.map(g => `<span class="genre-pill">${g.name}</span>`).join('') 
+                                        : (movie.genres !== 'Unknown' ? movie.genres.split(', ').map(g => `<span class="genre-pill">${g}</span>`).join('') : '')}
+                                </div>
+
+                                <p class="overview">${movie.summary}</p>
+                            </div>
+
+                            <div class="card-actions-bar">
+                                <button class="btn-action" onclick="copySingleTheater(${index})">
+                                    📋 Copy Text
+                                </button>
+                                <button class="btn-action" onclick="copySingleDiscord(${index})">
+                                    💬 Copy Discord
+                                </button>
+                                ${movie.trailer !== "No trailer available" ? `
+                                    <a class="btn-action" style="color: #ff858a; border-color: rgba(229,9,20,0.3);" href="${movie.trailer}" target="_blank" rel="noopener noreferrer">
+                                        ▶ Trailer
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+
+            container.innerHTML = html;
+        }
+
+        function toggleMovieSelection(movieId) {
+            const movie = currentDiscoveredMovies.find(m => m.id === movieId);
+            const checkbox = document.getElementById(`check-${movieId}`);
+            const card = document.getElementById(`card-${movieId}`);
+            if (movie && checkbox) {
+                movie.selected = checkbox.checked;
+                if (checkbox.checked) {
+                    card.classList.add("selected");
+                } else {
+                    card.classList.remove("selected");
+                }
+            }
+            updateBulkHeaderState();
+        }
+
+        function toggleSelectAll() {
+            const anyUnselected = currentDiscoveredMovies.some(m => !m.selected);
+            const newState = anyUnselected; // If any unselected, select all; otherwise deselect all
+            currentDiscoveredMovies.forEach(m => {
+                m.selected = newState;
+                const checkbox = document.getElementById(`check-${m.id}`);
+                const card = document.getElementById(`card-${m.id}`);
+                if (checkbox) checkbox.checked = newState;
+                if (card) {
+                    if (newState) card.classList.add("selected");
+                    else card.classList.remove("selected");
+                }
+            });
+            updateBulkHeaderState();
+        }
+
+        function updateBulkHeaderState() {
+            const selectedCount = currentDiscoveredMovies.filter(m => m.selected).length;
+            const countLabel = document.getElementById("bulk-selection-count");
+            const toggleBtnText = document.getElementById("btn-toggle-all-text");
+            if (countLabel) {
+                countLabel.textContent = `${currentDiscoveredMovies.length} Movies Found • ${selectedCount} Selected`;
+            }
+            if (toggleBtnText) {
+                toggleBtnText.textContent = selectedCount === 0 ? "Select All" : "Deselect All";
+            }
+        }
+
+        function copySingleTheater(index) {
+            const movie = currentDiscoveredMovies[index];
+            if (!movie) return;
+            executeCopy(movie.theaterText, "Copied Theater text to clipboard!");
+        }
+
+        function copySingleDiscord(index) {
+            const movie = currentDiscoveredMovies[index];
+            if (!movie) return;
+            executeCopy(movie.discordText, "Copied Discord markdown to clipboard!");
+        }
+
+        function copyAllBulkTheater() {
+            const selectedMovies = currentDiscoveredMovies.filter(m => m.selected);
+            if (selectedMovies.length === 0) {
+                showToast("No movies selected!");
+                return;
+            }
+            const bulkText = selectedMovies.map(m => m.theaterText).join("\n\n----------------------------------------\n\n");
+            executeCopy(bulkText, `Copied ${selectedMovies.length} movie(s) in Theater format!`);
+        }
+
+        function copyAllBulkDiscord() {
+            const selectedMovies = currentDiscoveredMovies.filter(m => m.selected);
+            if (selectedMovies.length === 0) {
+                showToast("No movies selected!");
+                return;
+            }
+            const bulkText = selectedMovies.map(m => m.discordText).join("\n\n━━━━━━━━━━━━━━━━━━━━\n\n");
+            executeCopy(bulkText, `Copied ${selectedMovies.length} movie(s) in Discord format!`);
+        }
+
+        async function executeCopy(text, toastMsg) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast(toastMsg);
+            } catch (err) {
+                fallbackCopy(text);
+                showToast(toastMsg);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
         }
     </script>
 </body>
