@@ -89,6 +89,27 @@ async function runTests() {
         if (!isNetflixActive) throw new Error("Netflix pill failed to activate on click");
         console.log('[PASS] Platform filter pill clicked and activated (Netflix)');
 
+        // 3b. Test 'Only Streaming' Toggle Switch
+        const isStreamingChecked = await page.$eval('#toggle-only-streaming', el => el.checked);
+        if (!isStreamingChecked) throw new Error("Expected 'Only Streaming' to be checked by default!");
+        console.log("[PASS] 'Only Streaming' toggle is checked by default.");
+
+        // Test that clicking 'Theaters' unchecks Only Streaming
+        const theatersBtn = await page.$('.platform-btn[data-platform="theaters"]');
+        if (!theatersBtn) throw new Error("Theaters button not found!");
+        await theatersBtn.click();
+        const isStreamingCheckedAfterTheaters = await page.$eval('#toggle-only-streaming', el => el.checked);
+        if (isStreamingCheckedAfterTheaters) throw new Error("Expected 'Only Streaming' to uncheck when Theaters selected!");
+        console.log("[PASS] 'Only Streaming' toggle auto-unchecks when Theaters selected.");
+
+        // Test that checking Only Streaming back on restores Any Platform
+        await page.click('#streaming-toggle-wrapper');
+        const isStreamingRechecked = await page.$eval('#toggle-only-streaming', el => el.checked);
+        if (!isStreamingRechecked) throw new Error("Expected toggle to recheck after click!");
+        const isTheatersActive = await page.evaluate(el => el.classList.contains('active'), theatersBtn);
+        if (isTheatersActive) throw new Error("Expected Theaters to be deactivated when Only Streaming rechecked!");
+        console.log("[PASS] 'Only Streaming' toggle restored and auto-switched away from Theaters.");
+
         // 4. Test Year Dropdown population
         const yearOptionsCount = await page.$eval('#year-select', el => el.options.length);
         if (yearOptionsCount < 60) {
@@ -129,6 +150,15 @@ async function runTests() {
         const badgesCount = await page.$$eval('.movie-card .badge', els => els.length);
         if (badgesCount < 5) throw new Error("Movie cards missing badges!");
         console.log(`[PASS] Discovered movies rendered ${badgesCount} metadata badges.`);
+
+        // Verify all discovered movies have confirmed active streaming sources
+        const sources = await page.$$eval('.movie-card .badge-source', els => els.map(e => e.textContent.trim()));
+        for (const src of sources) {
+            if (src.includes('VOD / Rent') || src.includes('Unknown')) {
+                throw new Error(`Movie with non-streaming source found while 'Only Streaming' enabled: ${src}`);
+            }
+        }
+        console.log(`[PASS] All 5 discovered movies confirmed streaming sources: ${sources.join(', ')}`);
 
         // 6. Test Bulk Action Selection & Checkbox Toggles
         const initialSelectionText = await page.$eval('#bulk-selection-count', el => el.textContent.trim());

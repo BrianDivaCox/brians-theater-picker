@@ -1,6 +1,6 @@
 {
   "name": "brians-theater-picker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Brian's Theater Live Movie Picker & Bulk Schedule Generator",
   "main": "index.html",
   "scripts": {

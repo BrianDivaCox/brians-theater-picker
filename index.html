@@ -152,6 +152,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
             margin-bottom: 12px;
         }
 
@@ -166,9 +168,72 @@
             gap: 8px;
         }
 
-        .platform-optional {
-            font-size: 0.8rem;
-            color: #6b7280;
+        /* Streaming Only Toggle */
+        .streaming-toggle-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 6px 14px;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .streaming-toggle-container:hover {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .streaming-toggle-container input {
+            display: none;
+        }
+
+        .custom-toggle-track {
+            width: 38px;
+            height: 22px;
+            background-color: #374151;
+            border-radius: 20px;
+            position: relative;
+            transition: background-color 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .custom-toggle-thumb {
+            width: 16px;
+            height: 16px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+
+        .streaming-toggle-container input:checked + .custom-toggle-track {
+            background-color: var(--primary-red);
+            box-shadow: 0 0 10px var(--primary-red-glow);
+        }
+
+        .streaming-toggle-container input:checked + .custom-toggle-track .custom-toggle-thumb {
+            transform: translateX(16px);
+        }
+
+        .toggle-label-text {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #d1d5db;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .streaming-toggle-container input:checked ~ .toggle-label-text {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
         }
 
         .platform-pills {
@@ -700,7 +765,13 @@
                     <div class="platform-title">
                         <span>📺</span> WHERE CAN BRIAN FIND IT? (PLATFORM / SOURCE)
                     </div>
-                    <span class="platform-optional">Optional</span>
+                    <label class="streaming-toggle-container" id="streaming-toggle-wrapper" title="Only discover movies available on streaming subscriptions or free streaming">
+                        <input type="checkbox" id="toggle-only-streaming" checked onchange="handleStreamingToggle()">
+                        <span class="custom-toggle-track">
+                            <span class="custom-toggle-thumb"></span>
+                        </span>
+                        <span class="toggle-label-text">⚡ Only Streaming (Exclude Rent/Buy)</span>
+                    </label>
                 </div>
 
                 <div class="platform-pills" id="platform-pills-container">
@@ -738,7 +809,7 @@
     </div>
 
     <footer>
-        Brian's Theater Live Picker &bull; Powered by TMDB &bull; v1.0.0
+        Brian's Theater Live Picker &bull; Powered by TMDB &bull; v1.0.1
     </footer>
 
     <script>
@@ -776,9 +847,24 @@
                         theatrical: btn.dataset.theatrical === 'true',
                         label: btn.dataset.label
                     };
+
+                    // If user selects Theaters, turn off Only Streaming toggle
+                    if (btn.dataset.theatrical === 'true') {
+                        const toggle = document.getElementById("toggle-only-streaming");
+                        if (toggle) toggle.checked = false;
+                    }
                 });
             });
         })();
+
+        function handleStreamingToggle() {
+            const toggle = document.getElementById("toggle-only-streaming");
+            // If Only Streaming is turned back on while Theaters was selected, switch back to Any Platform
+            if (toggle.checked && selectedPlatformFilter.theatrical) {
+                const anyBtn = document.querySelector('.platform-btn[data-platform=""]');
+                if (anyBtn) anyBtn.click();
+            }
+        }
 
         function updateButtonText() {
             const count = parseInt(document.getElementById("count-select").value, 10);
@@ -805,6 +891,7 @@
             const year = document.getElementById("year-select").value;
             const minRating = document.getElementById("min-rating").value;
             const targetCount = parseInt(document.getElementById("count-select").value, 10);
+            const onlyStreaming = document.getElementById("toggle-only-streaming")?.checked ?? true;
             const resultContainer = document.getElementById("result-container");
             const btnDiscover = document.getElementById("btn-discover");
 
@@ -830,11 +917,13 @@
                 if (year) discoverUrl += `&primary_release_year=${year}`;
                 if (minRating > 0) discoverUrl += `&vote_average.gte=${minRating}`;
 
-                // Handle platform filtering
+                // Handle platform filtering & streaming monetization types
                 if (selectedPlatformFilter.theatrical) {
                     discoverUrl += `&with_release_type=3|2`;
                 } else if (selectedPlatformFilter.providers) {
                     discoverUrl += `&watch_region=US&with_watch_providers=${selectedPlatformFilter.providers}&with_watch_monetization_types=flatrate|free|ads`;
+                } else if (onlyStreaming) {
+                    discoverUrl += `&watch_region=US&with_watch_monetization_types=flatrate|free|ads`;
                 }
 
                 // Step 1: Probe initial discovery for total pages
@@ -879,21 +968,40 @@
                 const uniqueCandidates = Array.from(new Map(candidatesPool.map(m => [m.id, m])).values());
                 // Shuffle pool
                 const shuffled = uniqueCandidates.sort(() => 0.5 - Math.random());
-                const selectedRaw = shuffled.slice(0, targetCount);
 
-                // Step 3: Concurrently fetch full details for each selected movie
-                const detailedMovies = await Promise.all(selectedRaw.map(async (rawMovie) => {
+                // Step 3: Fetch movie details and enforce streaming validation
+                const detailedMovies = [];
+                for (const rawMovie of shuffled) {
+                    if (detailedMovies.length >= targetCount) break;
                     try {
                         const detailUrl = `https://api.themoviedb.org/3/movie/${rawMovie.id}?api_key=${API_KEY}&append_to_response=release_dates,videos,watch/providers`;
                         const res = await fetch(detailUrl);
-                        if (!res.ok) return formatMovieFallback(rawMovie);
+                        if (!res.ok) continue;
                         const detail = await res.json();
-                        return parseMovieDetails(detail);
+                        const parsed = parseMovieDetails(detail);
+
+                        // Strict streaming enforcement: exclude rental-only titles
+                        if (onlyStreaming && !selectedPlatformFilter.theatrical) {
+                            if (parsed.source === "VOD / Rent" || parsed.source === "Unknown") {
+                                continue;
+                            }
+                        }
+                        detailedMovies.push(parsed);
                     } catch (err) {
                         console.error(`Error loading movie ${rawMovie.id}:`, err);
-                        return formatMovieFallback(rawMovie);
                     }
-                }));
+                }
+
+                if (detailedMovies.length === 0) {
+                    resultContainer.innerHTML = `
+                        <div class="controls-card" style="text-align: center; padding: 40px;">
+                            <h3 style="color: var(--primary-red); margin-bottom: 8px;">No Streaming Movies Found</h3>
+                            <p style="color: var(--text-muted);">No movies matched the current filters with active streaming availability. Try unchecking 'Only Streaming' or selecting another genre.</p>
+                        </div>
+                    `;
+                    btnDiscover.disabled = false;
+                    return;
+                }
 
                 currentDiscoveredMovies = detailedMovies;
                 renderDiscoveredMovies(detailedMovies, targetCount);

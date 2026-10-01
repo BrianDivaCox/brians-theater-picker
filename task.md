@@ -1,10 +1,10 @@
-# Task List: Brian's Theater Live Movie Picker Overhaul (v1.0.0)
+# Task List: Add "Only Streaming" Filter (v1.0.1)
 
-- [x] Clean house and backup repository to `backups/movie_picker_backup_v1.0.0_initial.tar.gz` (strict 2-backup retention) <!-- id: 0 -->
-- [x] Create implementation plan `implementation_plan.md` detailing architecture, TMDB multi-page discovery, cinema UI, and clipboard features <!-- id: 1 -->
-- [x] Implement Platform/Streaming filter pills matching Brian's Theater UI (Netflix, Disney+/Hulu, HBO Max, Tubi, Peacock, Paramount+, Starz, Theaters, Prime, Any) <!-- id: 2 -->
-- [x] Implement Bulk Suggestions mode (1, 3, 5, 10, 15 movies) with multi-card grid, individual selectors, and Bulk Copy actions (Theater & Discord format) <!-- id: 3 -->
-- [x] Create `package.json`, `version.json`, and `CHANGELOG.md` with App Store style changelog (strict <= 10 words per bullet) <!-- id: 4 -->
-- [x] Execute rigorous automated test harness with headless Chrome (`puppeteer-core`) validating platform filters, bulk generation, visual DOM assertions, responsive layouts (375px/768px/1280px), and zero console errors <!-- id: 5 -->
-- [x] Commit and push changes to GitHub remote `origin/main` with version title and Mini Summary <!-- id: 6 -->
-- [x] Clean house, terminate test servers and background tasks, and finalize task closure <!-- id: 7 -->
+- [x] Clean house and backup repository to `backups/movie_picker_backup_v1.0.1_pre_streaming_filter.tar.gz` (strict 2-backup retention) <!-- id: 0 -->
+- [x] Create implementation plan `implementation_plan.md` detailing the "Only Streaming" filter toggle and TMDB monetization integration <!-- id: 1 -->
+- [x] Add the "Only Streaming" toggle switch/checkbox to `index.html` with cinema styling and wire up TMDB monetization query logic <!-- id: 2 -->
+- [x] Ensure strict client-side validation so non-streaming/rental-only movies are filtered out when "Only Streaming" is active <!-- id: 3 -->
+- [x] Bump version to `1.0.1` across `package.json`, `version.json`, and `index.html`, and update `CHANGELOG.md` with App Store style bullets (strict <= 10 words) <!-- id: 4 -->
+- [x] Update automated test suite `test/verify_picker.js` and verify with headless Chrome (`puppeteer-core`) confirming toggle behavior, zero console errors, and responsive layouts <!-- id: 5 -->
+- [ ] Commit and push to GitHub remote `origin/main` with version title and Mini Summary <!-- id: 6 -->
+- [ ] Clean house, close background tasks, and finalize task closure <!-- id: 7 -->
